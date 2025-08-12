@@ -58,7 +58,7 @@ server {
         
         location ~* \.apk$ {
             add_header Content-Type application/vnd.android.package-archive;
-            add_header Content-Disposition 'attachment; filename="$basename"';
+            add_header Content-Disposition 'attachment';
         }
         
         location ~* \.(png|jpg|jpeg|gif|webp)$ {
