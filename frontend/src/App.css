@@ -1,0 +1,47 @@
+/* Custom styles for the APK Store */
+.app-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.app-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.screenshot-slider {
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.screenshot-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.screenshot-item {
+  scroll-snap-align: start;
+}
+
+.download-button {
+  background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+  transition: all 0.3s ease;
+}
+
+.download-button:hover {
+  background: linear-gradient(45deg, #2563eb, #1e40af);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.like-button.liked {
+  color: #ef4444;
+}
+
+.like-button:not(.liked) {
+  color: #6b7280;
+}
+
+.like-button:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
