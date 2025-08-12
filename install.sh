@@ -282,10 +282,8 @@ server {
             add_header Cache-Control "public, max-age=2592000";
         }
     }
-        }
-    }
 
-    # API
+    # API del backend - proxy reverso
     location /api/ {
         proxy_pass http://127.0.0.1:3002;
         proxy_http_version 1.1;
