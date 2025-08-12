@@ -46,6 +46,8 @@ fi
 REPO_URL="https://github.com/JJSecureVPN/StoreAPK.git"
 DOMAIN="store.jhservices.com.ar"
 APP_DIR="/var/www/apkstore"
+APP_USER="apkstore"
+NODE_VERSION="20"
 
 title "🚀 APK Store - Instalación Automática"
 title "======================================"
