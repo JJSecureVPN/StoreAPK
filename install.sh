@@ -65,14 +65,20 @@ apt install -y curl wget git unzip software-properties-common apt-transport-http
 
 # Instalar Node.js
 title "📦 Instalando Node.js $NODE_VERSION..."
-curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash -
+curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
 apt-get install -y nodejs
 
 # Verificar instalación de Node.js
-NODE_VER=$(node --version)
-NPM_VER=$(npm --version)
+NODE_VER=$(node --version 2>/dev/null || echo "Error")
+NPM_VER=$(npm --version 2>/dev/null || echo "Error")
 log "Node.js: $NODE_VER"
 log "npm: $NPM_VER"
+
+# Si npm no está disponible, instalarlo por separado
+if ! command -v npm &> /dev/null; then
+    warn "npm no encontrado, instalando por separado..."
+    apt-get install -y npm
+fi
 
 # Instalar PM2
 title "📦 Instalando PM2..."
