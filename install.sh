@@ -65,19 +65,58 @@ apt install -y curl wget git unzip software-properties-common apt-transport-http
 
 # Instalar Node.js
 title "📦 Instalando Node.js $NODE_VERSION..."
-curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
+
+# Método alternativo más confiable
+log "Descargando Node.js desde el repositorio oficial..."
+
+# Primero, remover versiones antiguas si existen
+apt-get remove -y nodejs npm 2>/dev/null || true
+
+# Descargar e instalar Node.js usando el script oficial actualizado
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+
+# Instalar Node.js y npm
 apt-get install -y nodejs
 
-# Verificar instalación de Node.js
+# Verificar instalación
 NODE_VER=$(node --version 2>/dev/null || echo "Error")
 NPM_VER=$(npm --version 2>/dev/null || echo "Error")
+
+if [[ "$NODE_VER" == "Error" ]] || [[ "$NPM_VER" == "Error" ]]; then
+    warn "Instalación estándar falló, probando método alternativo..."
+    
+    # Método alternativo: instalación manual
+    cd /tmp
+    NODEJS_VERSION="20.16.0"
+    wget https://nodejs.org/dist/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}-linux-x64.tar.xz
+    
+    if [ -f "node-v${NODEJS_VERSION}-linux-x64.tar.xz" ]; then
+        tar -xf node-v${NODEJS_VERSION}-linux-x64.tar.xz
+        cp -r node-v${NODEJS_VERSION}-linux-x64/* /usr/local/
+        
+        # Crear enlaces simbólicos
+        ln -sf /usr/local/bin/node /usr/bin/node
+        ln -sf /usr/local/bin/npm /usr/bin/npm
+        ln -sf /usr/local/bin/npx /usr/bin/npx
+        
+        # Verificar nuevamente
+        NODE_VER=$(node --version 2>/dev/null || echo "Error")
+        NPM_VER=$(npm --version 2>/dev/null || echo "Error")
+        
+        log "Instalación manual completada"
+    else
+        error "No se pudo descargar Node.js"
+        exit 1
+    fi
+fi
+
 log "Node.js: $NODE_VER"
 log "npm: $NPM_VER"
 
-# Si npm no está disponible, instalarlo por separado
-if ! command -v npm &> /dev/null; then
-    warn "npm no encontrado, instalando por separado..."
-    apt-get install -y npm
+# Verificar que tanto node como npm funcionan
+if ! command -v node &> /dev/null || ! command -v npm &> /dev/null; then
+    error "Node.js o npm no están disponibles después de la instalación"
+    exit 1
 fi
 
 # Instalar PM2
