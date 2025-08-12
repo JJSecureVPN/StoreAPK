@@ -224,33 +224,18 @@ sudo -u $APP_USER mkdir -p uploads/{apks,logos,screenshots}
 # Configurar Nginx
 title "🌐 Configurando Nginx..."
 cat > /etc/nginx/sites-available/$DOMAIN << 'NGINX_EOF'
-# Redirigir HTTP a HTTPS
+# Configuración HTTP para APK Store (puerto 8080)
 server {
-    listen 80;
-    listen [::]:80;
-    server_name store.jhservices.com.ar;
-    return 301 https://$server_name$request_uri;
-}
-
-# Configuración principal HTTPS
-server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
+    listen 8080;
+    listen [::]:8080;
     server_name store.jhservices.com.ar;
 
-    # Certificados SSL (configurados por certbot)
-    ssl_certificate /etc/letsencrypt/live/store.jhservices.com.ar/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/store.jhservices.com.ar/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-
-    # Configuración de seguridad
-    add_header X-Frame-Options DENY;
-    add_header X-Content-Type-Options nosniff;
-    add_header X-XSS-Protection "1; mode=block";
-    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
-
+    # Configuración de cliente
     client_max_body_size 100M;
+    client_body_timeout 60s;
+    client_header_timeout 60s;
+
+    # Directorio raíz
     root /var/www/apkstore/frontend/dist;
     index index.html;
 
@@ -258,10 +243,28 @@ server {
     access_log /var/log/nginx/store.jhservices.com.ar.access.log;
     error_log /var/log/nginx/store.jhservices.com.ar.error.log;
 
-    # Archivos estáticos
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/json
+        application/javascript
+        application/xml+rss
+        application/atom+xml
+        image/svg+xml;
+
+    # Cache para archivos estáticos
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
+        try_files $uri =404;
     }
 
     # Uploads
@@ -273,6 +276,12 @@ server {
         location ~* \.apk$ {
             add_header Content-Type application/vnd.android.package-archive;
             add_header Content-Disposition 'attachment; filename="$basename"';
+        }
+        
+        location ~* \.(png|jpg|jpeg|gif|webp)$ {
+            add_header Cache-Control "public, max-age=2592000";
+        }
+    }
         }
     }
 
@@ -325,8 +334,8 @@ fi
 # Configurar firewall
 title "🔥 Configurando firewall..."
 ufw allow 22/tcp    # SSH
-ufw allow 80/tcp    # HTTP
-ufw allow 443/tcp   # HTTPS
+ufw allow 8080/tcp  # HTTP (APK Store)
+ufw allow 443/tcp   # HTTPS (para SSL futuro)
 ufw --force enable
 
 # Iniciar aplicación con PM2
