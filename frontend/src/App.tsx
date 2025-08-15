@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar.tsx';
+import Footer from './components/Footer.tsx';
 import GridBackground from './components/GridBackground.tsx';
 import Home from './pages/Home.tsx';
+import Categories from './pages/Categories.tsx';
 import AppDetail from './pages/AppDetail.tsx';
 import Upload from './pages/Upload.tsx';
 import Admin from './pages/Admin.tsx';
@@ -19,14 +21,16 @@ function App() {
         
         <GridBackground />
         <Navbar />
-        <main className="relative z-10">
+        <main className="relative z-10 pt-24 md:pt-24">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/categories" element={<Categories />} />
             <Route path="/app/:id" element={<AppDetail />} />
             <Route path="/upload/:token" element={<Upload />} />
             <Route path="/admin-jhservices-private" element={<Admin />} />
           </Routes>
         </main>
+        <Footer />
       </div>
     </Router>
   );

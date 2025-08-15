@@ -170,26 +170,6 @@ const Home = () => {
           ))}
         </div>
       </div>
-
-      {/* Call to Action */}
-      <div className="text-center py-16 animate-fade-in">
-        <div className="bg-gradient-to-r from-primary-500/20 to-accent-500/20 backdrop-blur-sm border border-primary-500/30 rounded-2xl p-12 max-w-4xl mx-auto">
-          <h3 className="text-3xl font-bold text-white mb-4">
-            ¿Tienes una app increíble?
-          </h3>
-          <p className="text-dark-500 text-lg mb-8 max-w-2xl mx-auto">
-            Únete a nuestra plataforma y comparte tu aplicación con miles de usuarios que buscan innovación y calidad.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-glow">
-              Publicar App
-            </button>
-            <button className="bg-dark-100/30 backdrop-blur-sm border border-primary-500/30 hover:border-primary-500/60 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:bg-primary-500/10">
-              Saber Más
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

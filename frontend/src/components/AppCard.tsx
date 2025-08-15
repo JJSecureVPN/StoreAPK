@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Download, Heart, Star, Shield, Zap } from 'lucide-react';
+import { Download, Heart, Shield, Zap } from 'lucide-react';
 import type { App } from '../types/index.js';
 
 interface AppCardProps {
@@ -30,7 +30,7 @@ const AppCard = ({ app }: AppCardProps) => {
                 <img
                   src={app.logo_url || '/placeholder-icon.png'}
                   alt={app.name}
-                  className="w-16 h-16 rounded-xl object-cover border-2 border-primary-500/20 group-hover:border-primary-400/40 transition-all duration-300 shadow-lg"
+                  className="w-16 h-16 rounded-xl object-cover shadow-lg"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Crect x="3" y="3" width="18" height="18" rx="2" ry="2"/%3E%3Ccircle cx="9" cy="9" r="2"/%3E%3Cpath d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/%3E%3C/svg%3E';
@@ -49,7 +49,7 @@ const AppCard = ({ app }: AppCardProps) => {
                   </h3>
                   <Zap className="h-4 w-4 text-accent-500 opacity-60" />
                 </div>
-                <p className="text-sm text-dark-500 line-clamp-2 leading-relaxed">
+                <p className="text-sm text-white/80 line-clamp-2 leading-relaxed">
                   {app.short_description || 'Aplicación Android innovadora y segura'}
                 </p>
                 
@@ -80,11 +80,6 @@ const AppCard = ({ app }: AppCardProps) => {
                 <div className="flex items-center space-x-1 text-dark-500">
                   <Heart className="h-4 w-4 text-red-400" />
                   <span className="text-sm font-medium">{app.likes}</span>
-                </div>
-                
-                <div className="flex items-center space-x-1">
-                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                  <span className="text-sm font-medium text-dark-500">4.5</span>
                 </div>
               </div>
               

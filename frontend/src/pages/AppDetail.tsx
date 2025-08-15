@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
-  Download, Heart, ChevronLeft, Star, MessageCircle, 
+  Download, Heart, ChevronLeft, MessageCircle, 
   Calendar, Package, HardDrive, AlertCircle 
 } from 'lucide-react';
 import { appsAPI } from '../services/api.js';
@@ -17,6 +17,10 @@ const AppDetail = () => {
   const [commenting, setCommenting] = useState(false);
   const [liked, setLiked] = useState(false);
   
+  // Screenshot modal
+  const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
+  const [showScreenshotModal, setShowScreenshotModal] = useState(false);
+  
   // Comment form
   const [commentUsername, setCommentUsername] = useState('');
   const [commentContent, setCommentContent] = useState('');
@@ -27,6 +31,24 @@ const AppDetail = () => {
       loadApp(parseInt(id));
     }
   }, [id]);
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeScreenshotModal();
+      }
+    };
+
+    if (showScreenshotModal) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [showScreenshotModal]);
 
   const loadApp = async (appId: number) => {
     try {
@@ -112,6 +134,16 @@ const AppDetail = () => {
     }
   };
 
+  const openScreenshotModal = (imageUrl: string) => {
+    setSelectedScreenshot(imageUrl);
+    setShowScreenshotModal(true);
+  };
+
+  const closeScreenshotModal = () => {
+    setShowScreenshotModal(false);
+    setSelectedScreenshot(null);
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
@@ -131,7 +163,7 @@ const AppDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-dark-50">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="relative">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500/20 border-t-primary-500 mx-auto"></div>
@@ -147,7 +179,7 @@ const AppDetail = () => {
 
   if (error || !app) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-dark-50">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center bg-dark-100/50 backdrop-blur-sm border border-red-500/20 rounded-2xl p-8 max-w-md mx-4">
           <div className="h-16 w-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="h-8 w-8 text-red-400" />
@@ -167,7 +199,7 @@ const AppDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-dark-50">
+    <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <Link
@@ -187,7 +219,7 @@ const AppDetail = () => {
               <img
                 src={app.logo_url || '/placeholder-icon.png'}
                 alt={app.name}
-                className="w-24 h-24 rounded-2xl object-cover border-2 border-primary-500/30 shadow-lg"
+                className="w-24 h-24 rounded-2xl object-cover shadow-lg"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Crect x="3" y="3" width="18" height="18" rx="2" ry="2"/%3E%3Ccircle cx="9" cy="9" r="2"/%3E%3Cpath d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/%3E%3C/svg%3E';
@@ -201,7 +233,7 @@ const AppDetail = () => {
             
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-white mb-2">{app.name}</h1>
-              <p className="text-dark-400 mb-4 leading-relaxed">{app.short_description}</p>
+              <p className="text-white/90 mb-4 leading-relaxed">{app.short_description}</p>
               
               {/* App Stats */}
               <div className="flex flex-wrap items-center gap-3 text-sm mb-4">
@@ -214,11 +246,6 @@ const AppDetail = () => {
                   <Heart className="h-4 w-4 text-red-400" />
                   <span className="text-red-300 font-medium">{app.likes}</span>
                   <span className="text-dark-500">likes</span>
-                </div>
-                <div className="flex items-center space-x-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-3 py-2">
-                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                  <span className="text-yellow-300 font-medium">4.5</span>
-                  <span className="text-dark-500">estrellas</span>
                 </div>
               </div>
               
@@ -313,13 +340,14 @@ const AppDetail = () => {
               </div>
               <span>Capturas de pantalla</span>
             </h3>
-            <div className="flex space-x-4 overflow-x-auto pb-4">
+            <div className="flex space-x-4 overflow-x-auto pb-4 px-2">
               {app.screenshots.map((screenshot) => (
-                <div key={screenshot.id} className="flex-shrink-0">
+                <div key={screenshot.id} className="flex-shrink-0 p-2">
                   <img
                     src={screenshot.image_url}
                     alt={`Captura ${screenshot.position + 1}`}
-                    className="w-48 h-86 object-cover rounded-xl shadow-lg border border-primary-500/20 hover:border-primary-500/40 transition-all duration-200"
+                    className="w-48 h-86 object-cover rounded-xl shadow-lg border border-primary-500/20 hover:border-primary-500/40 transition-all duration-200 cursor-pointer hover:scale-105"
+                    onClick={() => openScreenshotModal(screenshot.image_url)}
                   />
                 </div>
               ))}
@@ -336,7 +364,7 @@ const AppDetail = () => {
               </div>
               <span>Descripción</span>
             </h3>
-            <div className="text-dark-300 leading-relaxed space-y-3">
+            <div className="text-white/85 leading-relaxed space-y-3">
               {app.long_description.split('\n').map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
@@ -436,6 +464,33 @@ const AppDetail = () => {
           </div>
         </div>
       </div>
+      
+      {/* Screenshot Modal */}
+      {showScreenshotModal && selectedScreenshot && (
+        <div 
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={closeScreenshotModal}
+        >
+          <div className="relative max-w-md w-full flex items-center justify-center">
+            <img
+              src={selectedScreenshot}
+              alt="Captura de pantalla ampliada"
+              className="max-w-full max-h-[70vh] object-contain rounded-xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+          
+          {/* Close button fixed to screen corner */}
+          <button
+            onClick={closeScreenshotModal}
+            className="fixed top-6 right-6 bg-black/50 text-white rounded-full p-3 hover:bg-black/70 transition-colors duration-200 z-60"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
