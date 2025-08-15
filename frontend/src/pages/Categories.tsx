@@ -4,39 +4,56 @@ import { Download, Heart, Grid, List } from 'lucide-react';
 import { appsAPI } from '../services/api';
 import type { App } from '../types';
 
-// Definir categorías basadas en las apps existentes
-const categories = [
+// Definir categorías disponibles
+const predefinedCategories = [
   {
-    id: 'social',
-    name: 'Redes Sociales',
-    description: 'Conecta con amigos y comparte momentos',
-    icon: '👥',
-    color: 'from-blue-500 to-purple-600',
-    packages: ['com.whatsapp', 'com.instagram.android', 'org.telegram.messenger']
+    id: 'Comunicación',
+    name: 'Comunicación',
+    description: 'Mensajería, llamadas y redes sociales',
+    icon: '�',
+    color: 'from-blue-500 to-purple-600'
   },
   {
-    id: 'entertainment',
+    id: 'Entretenimiento',
     name: 'Entretenimiento',
     description: 'Videos, música y diversión',
     icon: '🎭',
-    color: 'from-red-500 to-pink-600',
-    packages: ['com.zhiliaoapp.musically', 'com.google.android.youtube', 'com.spotify.music']
+    color: 'from-red-500 to-pink-600'
   },
   {
-    id: 'communication',
-    name: 'Comunicación',
-    description: 'Mensajería y llamadas',
-    icon: '💬',
-    color: 'from-green-500 to-teal-600',
-    packages: ['com.whatsapp', 'org.telegram.messenger']
+    id: 'Herramientas',
+    name: 'Herramientas',
+    description: 'Utilidades y productividad',
+    icon: '🛠️',
+    color: 'from-green-500 to-teal-600'
   },
   {
-    id: 'media',
+    id: 'Juegos',
+    name: 'Juegos',
+    description: 'Diversión y entretenimiento',
+    icon: '🎮',
+    color: 'from-purple-500 to-indigo-600'
+  },
+  {
+    id: 'Multimedia',
     name: 'Multimedia',
-    description: 'Fotos, videos y música',
+    description: 'Fotos, videos y edición',
     icon: '🎵',
-    color: 'from-purple-500 to-indigo-600',
-    packages: ['com.instagram.android', 'com.zhiliaoapp.musically', 'com.google.android.youtube', 'com.spotify.music']
+    color: 'from-orange-500 to-red-600'
+  },
+  {
+    id: 'Educación',
+    name: 'Educación',
+    description: 'Aprendizaje y conocimiento',
+    icon: '📚',
+    color: 'from-indigo-500 to-blue-600'
+  },
+  {
+    id: 'Otras',
+    name: 'Otras',
+    description: 'Aplicaciones diversas',
+    icon: '📱',
+    color: 'from-gray-500 to-gray-600'
   }
 ];
 
@@ -47,12 +64,18 @@ const Categories = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Generar categorías dinámicamente basadas en las apps
+  const getAvailableCategories = () => {
+    const appCategories = [...new Set(apps.map(app => app.category || 'Otras'))];
+    return predefinedCategories.filter(cat => appCategories.includes(cat.id));
+  };
+
+  const categories = getAvailableCategories();
+
   useEffect(() => {
     const fetchApps = async () => {
       try {
-        console.log('Fetching apps for categories...');
         const data = await appsAPI.getAllApps();
-        console.log('Apps fetched:', data);
         setApps(data);
         setError(null);
       } catch (error) {
@@ -67,10 +90,7 @@ const Categories = () => {
   }, []);
 
   const getAppsForCategory = (categoryId: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    if (!category) return [];
-    
-    return apps.filter(app => category.packages.includes(app.package_name));
+    return apps.filter(app => (app.category || 'Otras') === categoryId);
   };
 
   const formatNumber = (num: number) => {
@@ -95,8 +115,6 @@ const Categories = () => {
       </div>
     );
   }
-
-  console.log('Rendering Categories page with', apps.length, 'apps');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -266,13 +284,6 @@ const Categories = () => {
                 </button>
               );
             })}
-          </div>
-          
-          {/* Debug info */}
-          <div className="mt-8 p-4 bg-dark-200/20 rounded-lg">
-            <p className="text-gray-400 text-sm">
-              Debug: {apps.length} apps cargadas, {categories.length} categorías disponibles
-            </p>
           </div>
         </div>
       )}

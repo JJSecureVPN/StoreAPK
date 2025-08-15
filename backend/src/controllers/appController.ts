@@ -26,7 +26,7 @@ export const getAllApps = async (req: Request, res: Response) => {
     const result = await query(`
       SELECT 
         id, name, package_name, short_description, logo_url, 
-        downloads, likes, version, size_mb, created_at
+        downloads, likes, version, size_mb, category, created_at
       FROM apps 
       ORDER BY created_at DESC
     `);

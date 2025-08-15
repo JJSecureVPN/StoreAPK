@@ -8,6 +8,7 @@ export interface App {
   apk_url?: string;
   version?: string;
   size_mb?: number;
+  category?: string;
   downloads?: number;
   likes?: number;
   created_at?: Date;
