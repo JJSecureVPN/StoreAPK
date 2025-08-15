@@ -8,7 +8,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/logo-jhs.svg" alt="JHS Store" className="h-8 w-8" />
+            <img src="/logo-jhs.png" alt="JHS Store" className="h-8 w-8" />
             <span className="text-xl font-bold text-gray-900">JHS Store</span>
           </Link>
           
