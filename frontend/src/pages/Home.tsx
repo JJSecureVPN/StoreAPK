@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Download, Star, TrendingUp, Shield, Zap } from 'lucide-react';
 import AppCard from '../components/AppCard.tsx';
 import { appsAPI } from '../services/api.js';
 import type { App } from '../types/index.js';
@@ -31,8 +31,16 @@ const Home = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary-600" />
-          <p className="mt-2 text-gray-600">Cargando aplicaciones...</p>
+          <div className="relative">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary-500" />
+            <div className="absolute inset-0 h-12 w-12 mx-auto border-2 border-primary-500/20 rounded-full animate-pulse-glow"></div>
+          </div>
+          <p className="mt-4 text-dark-600 font-medium">Cargando aplicaciones...</p>
+          <div className="mt-2 flex justify-center space-x-1">
+            <div className="h-2 w-2 bg-primary-500 rounded-full animate-bounce"></div>
+            <div className="h-2 w-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="h-2 w-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          </div>
         </div>
       </div>
     );
@@ -41,12 +49,12 @@ const Home = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="h-8 w-8 mx-auto text-red-600 mb-2" />
-          <p className="text-gray-600 mb-4">{error}</p>
+        <div className="text-center bg-dark-100/50 backdrop-blur-sm border border-red-500/20 rounded-2xl p-8 shadow-glow">
+          <AlertCircle className="h-12 w-12 mx-auto text-red-500 mb-4" />
+          <p className="text-dark-600 mb-6 text-lg">{error}</p>
           <button
             onClick={loadApps}
-            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-glow"
           >
             Reintentar
           </button>
@@ -56,62 +64,130 @@ const Home = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
       {/* Hero Section */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Descubre las mejores apps Android
-        </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Explora, descarga y disfruta de una amplia colección de aplicaciones Android seguras y verificadas.
+      <div className="text-center mb-16 animate-fade-in">
+        <div className="relative">
+          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-primary-200 to-accent-300 bg-clip-text text-transparent mb-6 leading-tight">
+            Descubre el Futuro
+            <br />
+            <span className="text-primary-400">de las Apps Android</span>
+          </h1>
+          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full animate-pulse-glow"></div>
+        </div>
+        <p className="text-xl text-dark-500 max-w-3xl mx-auto leading-relaxed mt-6">
+          Explora, descarga y disfruta de una amplia colección de aplicaciones Android 
+          <span className="text-primary-400 font-semibold"> seguras y verificadas</span> con la última tecnología.
         </p>
+        
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-2xl mx-auto">
+          <div className="bg-dark-100/30 backdrop-blur-sm border border-primary-500/20 rounded-xl p-6 text-center hover:border-primary-500/40 transition-all duration-300 group">
+            <Download className="h-8 w-8 mx-auto text-primary-500 mb-2 group-hover:animate-bounce" />
+            <div className="text-2xl font-bold text-white">1000+</div>
+            <div className="text-dark-500 text-sm">Descargas</div>
+          </div>
+          <div className="bg-dark-100/30 backdrop-blur-sm border border-accent-500/20 rounded-xl p-6 text-center hover:border-accent-500/40 transition-all duration-300 group">
+            <Shield className="h-8 w-8 mx-auto text-accent-500 mb-2 group-hover:animate-bounce" />
+            <div className="text-2xl font-bold text-white">100%</div>
+            <div className="text-dark-500 text-sm">Seguras</div>
+          </div>
+          <div className="bg-dark-100/30 backdrop-blur-sm border border-primary-400/20 rounded-xl p-6 text-center hover:border-primary-400/40 transition-all duration-300 group">
+            <Star className="h-8 w-8 mx-auto text-yellow-500 mb-2 group-hover:animate-bounce" />
+            <div className="text-2xl font-bold text-white">4.8</div>
+            <div className="text-dark-500 text-sm">Rating</div>
+          </div>
+        </div>
       </div>
 
-      {/* Apps Grid */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Aplicaciones populares
-          </h2>
-          <span className="text-sm text-gray-500">
-            {apps.length} aplicaciones disponibles
-          </span>
+      {/* Featured Apps Section */}
+      <div className="mb-12 animate-slide-up">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-3">
+            <TrendingUp className="h-8 w-8 text-primary-500" />
+            <h2 className="text-3xl font-bold text-white">
+              Aplicaciones Destacadas
+            </h2>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Zap className="h-5 w-5 text-accent-500" />
+            <span className="text-dark-500 bg-dark-100/30 backdrop-blur-sm border border-primary-500/20 rounded-full px-4 py-2 text-sm font-medium">
+              {apps.length} disponibles
+            </span>
+          </div>
         </div>
 
         {apps.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No hay aplicaciones disponibles por el momento.</p>
+          <div className="text-center py-20">
+            <div className="bg-dark-100/30 backdrop-blur-sm border border-primary-500/20 rounded-2xl p-12 max-w-md mx-auto">
+              <div className="h-16 w-16 bg-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Download className="h-8 w-8 text-primary-500" />
+              </div>
+              <p className="text-dark-500 text-lg">No hay aplicaciones disponibles por el momento.</p>
+              <p className="text-dark-600 text-sm mt-2">¡Vuelve pronto para descubrir nuevas apps!</p>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {apps.map((app) => (
-              <AppCard key={app.id} app={app} />
+            {apps.map((app, index) => (
+              <div
+                key={app.id}
+                className="animate-slide-up"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <AppCard app={app} />
+              </div>
             ))}
           </div>
         )}
       </div>
 
       {/* Categories Section */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mt-12">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Categorías populares</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="bg-dark-100/20 backdrop-blur-sm border border-primary-500/10 rounded-2xl p-8 mt-16 animate-fade-in">
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-bold text-white mb-2">Explora por Categorías</h3>
+          <p className="text-dark-500">Encuentra exactamente lo que necesitas</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
-            { name: 'Juegos', icon: '🎮', count: 0 },
-            { name: 'Productividad', icon: '💼', count: 0 },
-            { name: 'Entretenimiento', icon: '🎬', count: 0 },
-            { name: 'Educación', icon: '📚', count: 0 },
-          ].map((category) => (
+            { name: 'Juegos', icon: '🎮', count: 0, color: 'from-purple-500 to-pink-500' },
+            { name: 'Productividad', icon: '💼', count: 0, color: 'from-blue-500 to-cyan-500' },
+            { name: 'Entretenimiento', icon: '🎬', count: 0, color: 'from-orange-500 to-red-500' },
+            { name: 'Educación', icon: '📚', count: 0, color: 'from-green-500 to-emerald-500' },
+          ].map((category, index) => (
             <div
               key={category.name}
-              className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors cursor-pointer"
+              className="group relative p-6 bg-dark-100/30 backdrop-blur-sm border border-primary-500/20 rounded-xl hover:border-primary-500/50 transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-glow"
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="text-center">
-                <div className="text-2xl mb-2">{category.icon}</div>
-                <h4 className="font-medium text-gray-900">{category.name}</h4>
-                <p className="text-sm text-gray-500">{category.count} apps</p>
+              <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-10 rounded-xl transition-opacity duration-300`}></div>
+              <div className="relative text-center">
+                <div className="text-3xl mb-3 group-hover:animate-bounce">{category.icon}</div>
+                <h4 className="font-semibold text-white mb-1">{category.name}</h4>
+                <p className="text-sm text-dark-500">{category.count} apps</p>
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Call to Action */}
+      <div className="text-center py-16 animate-fade-in">
+        <div className="bg-gradient-to-r from-primary-500/20 to-accent-500/20 backdrop-blur-sm border border-primary-500/30 rounded-2xl p-12 max-w-4xl mx-auto">
+          <h3 className="text-3xl font-bold text-white mb-4">
+            ¿Tienes una app increíble?
+          </h3>
+          <p className="text-dark-500 text-lg mb-8 max-w-2xl mx-auto">
+            Únete a nuestra plataforma y comparte tu aplicación con miles de usuarios que buscan innovación y calidad.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-glow">
+              Publicar App
+            </button>
+            <button className="bg-dark-100/30 backdrop-blur-sm border border-primary-500/30 hover:border-primary-500/60 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:bg-primary-500/10">
+              Saber Más
+            </button>
+          </div>
         </div>
       </div>
     </div>
