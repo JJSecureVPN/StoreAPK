@@ -21,7 +21,7 @@ function App() {
         
         <GridBackground />
         <Navbar />
-        <main className="relative z-10 pt-24 md:pt-24">
+        <main className="relative z-10 pt-40 md:pt-28">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/categories" element={<Categories />} />
