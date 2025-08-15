@@ -205,7 +205,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isAuthenticated, onAuthenticate
               <h1 className="text-2xl font-bold text-gray-900">Panel de Administración</h1>
             </div>
             <div className="text-sm text-gray-500">
-              APK Store Management
+              JHS Store Management
             </div>
           </div>
         </div>

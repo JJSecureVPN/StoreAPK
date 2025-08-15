@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Smartphone, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 const Navbar = () => {
   return (
@@ -8,8 +8,8 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <Smartphone className="h-8 w-8 text-primary-600" />
-            <span className="text-xl font-bold text-gray-900">APK Store</span>
+            <img src="/logo-jhs.svg" alt="JHS Store" className="h-8 w-8" />
+            <span className="text-xl font-bold text-gray-900">JHS Store</span>
           </Link>
           
           {/* Search Bar */}
