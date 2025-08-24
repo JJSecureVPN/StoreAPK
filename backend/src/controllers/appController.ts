@@ -9,7 +9,8 @@ import {
   addMockApp, 
   updateMockApp, 
   findMockAppByPackageName,
-  userUploadedApps 
+  userUploadedApps,
+  findAppById 
 } from '../data/mockData';
 
 // Check if database is connected
@@ -32,6 +33,7 @@ export const getAllApps = async (req: Request, res: Response) => {
       console.log('Database not connected - returning all mock apps including user uploads');
       const allApps = getAllMockApps();
       console.log(`Returning ${allApps.length} apps total`);
+      console.log('App IDs being returned:', allApps.map(app => ({ id: app.id, name: app.name })));
       return res.json(allApps);
     }
     
@@ -55,20 +57,29 @@ export const getAllApps = async (req: Request, res: Response) => {
 export const getAppById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    console.log('getAppById called with ID:', id);
     const dbConnected = await isDatabaseConnected();
     
     if (!dbConnected) {
-      // Get app from the current active set (user apps if they exist, otherwise mock apps)
-      const allApps = getAllMockApps();
-      const app = allApps.find(app => app.id === parseInt(id));
+      console.log('Database not connected - searching in mock/user data');
+      
+      // Use the robust findAppById function
+      const app = findAppById(parseInt(id));
       
       if (!app) {
+        console.log('App not found with ID:', id);
         return res.status(404).json({ error: 'App not found' });
       }
       
-      // Check if this is a user-uploaded app (has screenshots array) or mock app
+      console.log('App found:', app.name);
+      
+      // Check if this is a user-uploaded app or mock app
       const hasUserUploads = userUploadedApps.length > 0;
       const isUserApp = hasUserUploads && userUploadedApps.some((userApp: any) => userApp.id === app.id);
+      
+      console.log('Has user uploads:', hasUserUploads);
+      console.log('Is user app:', isUserApp);
+      
       const screenshots = isUserApp ? (app.screenshots || []) : 
                          hasUserUploads ? [] : 
                          mockScreenshots.filter(s => s.app_id === parseInt(id));
@@ -79,6 +90,7 @@ export const getAppById = async (req: Request, res: Response) => {
         comments: hasUserUploads ? [] : mockComments.filter(c => c.app_id === parseInt(id))
       };
       
+      console.log('Returning app details for:', app.name);
       return res.json(appWithDetails);
     }
     

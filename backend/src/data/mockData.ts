@@ -138,6 +138,32 @@ export const findMockAppByPackageName = (packageName: string) => {
   return userUploadedApps.find(app => app.package_name === packageName);
 };
 
+// Function to find an app by ID in all apps (user uploaded + mock)
+export const findAppById = (id: number) => {
+  console.log('Looking for app with ID:', id);
+  console.log('Available user apps:', userUploadedApps.map(app => ({ id: app.id, name: app.name })));
+  console.log('Available mock apps:', mockApps.map(app => ({ id: app.id, name: app.name })));
+  
+  // First look in user uploaded apps
+  const userApp = userUploadedApps.find(app => app.id === id);
+  if (userApp) {
+    console.log('Found in user apps:', userApp.name);
+    return userApp;
+  }
+  
+  // Then look in mock apps (only if no user apps exist)
+  if (userUploadedApps.length === 0) {
+    const mockApp = mockApps.find(app => app.id === id);
+    if (mockApp) {
+      console.log('Found in mock apps:', mockApp.name);
+      return mockApp;
+    }
+  }
+  
+  console.log('App not found with ID:', id);
+  return null;
+};
+
 export const mockComments = [
   {
     id: 1,
