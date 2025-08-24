@@ -295,20 +295,20 @@ const AppDetail = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 opacity-0 animate-fade-in">
         {/* Back Button */}
         <Link
           to="/"
-          className="inline-flex items-center text-primary-400 hover:text-primary-300 mb-6 group transition-colors duration-200"
+          className="inline-flex items-center text-primary-400 hover:text-primary-300 mb-6 group transition-colors duration-300"
         >
-          <div className="p-2 rounded-xl bg-dark-100/30 border border-primary-500/20 group-hover:border-primary-500/40 transition-all duration-200 mr-3">
+          <div className="p-2 rounded-xl bg-dark-100/30 border border-primary-500/20 group-hover:border-primary-500/40 transition-all duration-300 mr-3">
             <ChevronLeft className="h-5 w-5" />
           </div>
           <span className="font-medium">Volver a la tienda</span>
         </Link>
 
         {/* App Header */}
-        <div className="bg-dark-100/50 border border-primary-500/20 rounded-2xl p-6 mb-6">
+        <div className="bg-dark-100/50 border border-primary-500/20 rounded-2xl p-6 mb-6 transition-all duration-300">
           <div className="flex items-start space-x-6">
             <div className="relative flex-shrink-0">
               <img
@@ -471,7 +471,7 @@ const AppDetail = () => {
                   <img
                     src={screenshot.image_url}
                     alt={`Captura ${screenshot.position + 1}`}
-                    className="w-48 h-86 object-cover rounded-xl shadow-lg border border-primary-500/20 hover:border-primary-500/40 transition-all duration-200 cursor-pointer hover:scale-105"
+                    className="w-48 h-86 object-cover rounded-xl shadow-lg border border-primary-500/20 hover:border-primary-500/40 transition-all duration-300 cursor-pointer hover:scale-[1.02]"
                     onClick={() => openScreenshotModal(screenshot.image_url)}
                   />
                 </div>
