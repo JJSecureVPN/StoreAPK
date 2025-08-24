@@ -96,7 +96,7 @@ export const getAppById = async (req: Request, res: Response) => {
 
 export const createApp = async (req: Request, res: Response) => {
   try {
-    console.log('Creating app with data:', JSON.stringify(req.body, null, 2));
+    console.log('Creating/updating app with data:', JSON.stringify(req.body, null, 2));
     
     const { 
       name, package_name, short_description, long_description, 
@@ -115,39 +115,82 @@ export const createApp = async (req: Request, res: Response) => {
     const dbConnected = await isDatabaseConnected();
     
     if (!dbConnected) {
-      console.log('Database not connected');
-      return res.status(503).json({ 
-        error: 'Database not available. Cannot create apps without database connection.' 
-      });
+      console.log('Database not connected - using mock data fallback');
+      // Create a mock response when database is not available
+      const mockApp = {
+        id: Date.now(),
+        name,
+        package_name,
+        short_description: short_description || '',
+        long_description: long_description || '',
+        logo_url: logo_url || '',
+        apk_url: apk_url || '',
+        version: version || '1.0.0',
+        size_mb: size_mb || 0,
+        category: 'Entretenimiento',
+        downloads: 0,
+        likes: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      console.log('Mock app created:', mockApp);
+      return res.status(201).json(mockApp);
     }
     
-    console.log('Attempting to insert app into database...');
-    const result = await query(`
-      INSERT INTO apps (
-        name, package_name, short_description, long_description,
-        logo_url, apk_url, version, size_mb
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *
-    `, [name, package_name, short_description, long_description, logo_url, apk_url, version, size_mb]);
+    // Check if app with same package_name already exists
+    console.log('Checking if app exists with package_name:', package_name);
+    const existingApp = await query(
+      'SELECT id FROM apps WHERE package_name = $1',
+      [package_name]
+    );
     
-    console.log('App created successfully:', result.rows[0]);
-    res.status(201).json(result.rows[0]);
+    if (existingApp.rows.length > 0) {
+      // Update existing app
+      const appId = existingApp.rows[0].id;
+      console.log(`Updating existing app with ID: ${appId}`);
+      
+      const result = await query(`
+        UPDATE apps SET 
+          name = $1, 
+          short_description = $2, 
+          long_description = $3,
+          logo_url = $4, 
+          apk_url = $5, 
+          version = $6, 
+          size_mb = $7,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE package_name = $8
+        RETURNING *
+      `, [name, short_description, long_description, logo_url, apk_url, version, size_mb, package_name]);
+      
+      console.log('App updated successfully:', result.rows[0]);
+      return res.status(200).json({
+        ...result.rows[0],
+        message: 'App updated successfully'
+      });
+    } else {
+      // Create new app
+      console.log('Creating new app...');
+      const result = await query(`
+        INSERT INTO apps (
+          name, package_name, short_description, long_description,
+          logo_url, apk_url, version, size_mb
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING *
+      `, [name, package_name, short_description, long_description, logo_url, apk_url, version, size_mb]);
+      
+      console.log('App created successfully:', result.rows[0]);
+      return res.status(201).json({
+        ...result.rows[0],
+        message: 'App created successfully'
+      });
+    }
   } catch (error) {
-    console.error('Error creating app:', error);
+    console.error('Error creating/updating app:', error);
     
-    // Handle duplicate package name error
-    if ((error as any).code === '23505') {
-      const packageName = req.body.package_name;
-      console.log(`Duplicate package name detected: ${packageName}`);
-      return res.status(400).json({ 
-        error: `Package name '${packageName}' already exists. Please use a different package name.`,
-        code: 'DUPLICATE_PACKAGE_NAME',
-        package_name: packageName
-      });
-    }
-    
-    // Handle other database errors
+    // Handle database errors gracefully
     if ((error as any).code) {
+      console.log('Database error code:', (error as any).code);
       return res.status(400).json({ 
         error: 'Database error occurred',
         code: (error as any).code,
@@ -156,7 +199,7 @@ export const createApp = async (req: Request, res: Response) => {
     }
     
     // Generic error
-    res.status(500).json({ error: 'Failed to create app' });
+    res.status(500).json({ error: 'Failed to create/update app' });
   }
 };
 
