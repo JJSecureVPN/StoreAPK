@@ -1,54 +1,91 @@
 #!/bin/bash
 
-# Script de despliegue de la aplicación en el VPS
-# Ejecutar como usuario apkstore en /var/www/apkstore
+# Script de despliegue directo de la aplicación en el VPS
+# Ejecutar desde el directorio del proyecto clonado
 
 set -e
 
-echo "🚀 Desplegando APK Store..."
+echo "🚀 Desplegando APK Store directamente desde código fuente..."
 
 # Verificar que estamos en el directorio correcto
-if [ ! -f "apkstore-deploy.tar.gz" ]; then
-    echo "❌ Archivo apkstore-deploy.tar.gz no encontrado"
-    echo "Asegúrate de estar en /var/www/apkstore y tener el archivo subido"
+if [ ! -f "package.json" ] || [ ! -d "backend" ] || [ ! -d "frontend" ]; then
+    echo "❌ No estamos en el directorio del proyecto"
+    echo "Asegúrate de ejecutar desde el directorio raíz del proyecto clonado"
     exit 1
 fi
 
+# Crear directorio de destino si no existe
+DEPLOY_DIR="/var/www/apkstore"
+echo "📁 Preparando directorio de despliegue: $DEPLOY_DIR"
+
+# Crear directorio si no existe
+sudo mkdir -p $DEPLOY_DIR
+
+# Cambiar propiedad al usuario apkstore
+sudo chown -R apkstore:apkstore $DEPLOY_DIR
+
 # Crear backup si existe instalación previa
-if [ -d "backend" ] || [ -d "frontend" ]; then
+if [ -d "$DEPLOY_DIR/backend" ] || [ -d "$DEPLOY_DIR/frontend" ]; then
     echo "💾 Creando backup..."
     BACKUP_NAME="backup-$(date +%Y%m%d-%H%M%S)"
-    mkdir -p backups
-    tar -czf "backups/$BACKUP_NAME.tar.gz" . --exclude=backups --exclude=apkstore-deploy.tar.gz 2>/dev/null || true
-    echo "✅ Backup creado: backups/$BACKUP_NAME.tar.gz"
+    sudo mkdir -p $DEPLOY_DIR/backups
+    sudo tar -czf "$DEPLOY_DIR/backups/$BACKUP_NAME.tar.gz" -C $DEPLOY_DIR . --exclude=backups 2>/dev/null || true
+    echo "✅ Backup creado: $DEPLOY_DIR/backups/$BACKUP_NAME.tar.gz"
 fi
 
-# Extraer aplicación
-echo "📦 Extrayendo aplicación..."
-tar -xzf apkstore-deploy.tar.gz
+# Copiar código al directorio de despliegue
+echo "📦 Copiando código fuente..."
+sudo rsync -av --delete \
+    --exclude='.git' \
+    --exclude='node_modules' \
+    --exclude='dist' \
+    --exclude='.env' \
+    . $DEPLOY_DIR/
+
+# Cambiar propiedad
+sudo chown -R apkstore:apkstore $DEPLOY_DIR
+
+# Cambiar al directorio de despliegue
+cd $DEPLOY_DIR
 
 # Instalar dependencias
 echo "📦 Instalando dependencias..."
-npm run install:all
+sudo -u apkstore npm install
+
+# Backend
+echo "📦 Instalando dependencias del backend..."
+sudo -u apkstore bash -c "cd backend && npm install"
+
+# Frontend
+echo "📦 Instalando dependencias del frontend..."
+sudo -u apkstore bash -c "cd frontend && npm install"
+
+# Configurar variables de entorno
+echo "⚙️ Configurando variables de entorno..."
+if [ ! -f "backend/.env" ]; then
+    sudo -u apkstore cp backend/.env.example backend/.env
+    echo "📝 Archivo backend/.env creado. Edita las configuraciones si es necesario."
+fi
+
+if [ ! -f "frontend/.env" ]; then
+    sudo -u apkstore cp frontend/.env.example frontend/.env
+    echo "📝 Archivo frontend/.env creado."
+fi
 
 # Construir frontend para producción
 echo "🏗️ Construyendo frontend..."
-cd frontend
-npm run build
-cd ..
+sudo -u apkstore bash -c "cd frontend && npm run build"
 
 # Compilar backend TypeScript
 echo "🏗️ Compilando backend..."
-cd backend
-npm run build
-cd ..
+sudo -u apkstore bash -c "cd backend && npm run build"
 
 # Crear directorios necesarios
 echo "📁 Creando estructura de archivos..."
-mkdir -p uploads/apks
-mkdir -p uploads/icons
-mkdir -p uploads/screenshots
-mkdir -p logs
+sudo -u apkstore mkdir -p uploads/apks
+sudo -u apkstore mkdir -p uploads/icons
+sudo -u apkstore mkdir -p uploads/screenshots
+sudo -u apkstore mkdir -p logs
 
 # Configurar permisos
 chmod 755 uploads
@@ -62,7 +99,7 @@ if [ ! -f "backend/dist/index.js" ]; then
     exit 1
 fi
 
-# Verificar que el build del frontend existe
+# Verificar que el build del frontend exists
 if [ ! -f "frontend/dist/index.html" ]; then
     echo "❌ Build del frontend fallido"
     exit 1
@@ -70,20 +107,18 @@ fi
 
 # Detener aplicación si está corriendo
 echo "🛑 Deteniendo aplicación anterior..."
-pm2 stop apkstore-backend 2>/dev/null || echo "No hay aplicación corriendo"
+sudo -u apkstore pm2 stop apkstore-backend 2>/dev/null || echo "No hay aplicación corriendo"
 
 # Iniciar aplicación con PM2
 echo "🚀 Iniciando aplicación..."
-pm2 start ecosystem.config.js --env production
+sudo -u apkstore pm2 start ecosystem.config.js --env production
 
 # Guardar configuración PM2
-pm2 save
+sudo -u apkstore pm2 save
 
-# Configurar PM2 para inicio automático (si no está configurado)
-if ! pm2 startup | grep -q "already"; then
-    echo "⚙️ Configurando inicio automático..."
-    sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u apkstore --hp /var/www/apkstore
-fi
+# Configurar PM2 para inicio automático
+echo "⚙️ Configurando inicio automático..."
+sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u apkstore --hp /var/www/apkstore 2>/dev/null || true
 
 # Reiniciar Nginx para cargar el frontend
 echo "🌐 Reiniciando Nginx..."
@@ -94,12 +129,12 @@ echo "🔍 Verificando estado..."
 sleep 3
 
 # Verificar PM2
-PM2_STATUS=$(pm2 status apkstore-backend | grep -c "online" || echo "0")
+PM2_STATUS=$(sudo -u apkstore pm2 status apkstore-backend | grep -c "online" || echo "0")
 if [ "$PM2_STATUS" -gt "0" ]; then
     echo "✅ Backend online en PM2"
 else
     echo "❌ Error: Backend no está corriendo"
-    pm2 logs apkstore-backend --lines 10
+    sudo -u apkstore pm2 logs apkstore-backend --lines 10
     exit 1
 fi
 
@@ -124,7 +159,7 @@ echo ""
 echo "🎉 ¡Despliegue completado!"
 echo ""
 echo "📊 Estado de la aplicación:"
-pm2 status
+sudo -u apkstore pm2 status
 
 echo ""
 echo "🌐 URLs disponibles:"
@@ -137,8 +172,8 @@ echo "2. Ejecutar: sudo certbot --nginx -d store.jhservices.com.ar"
 echo "3. Acceder a: https://store.jhservices.com.ar"
 echo ""
 echo "📊 Comandos útiles:"
-echo "   pm2 status          - Ver estado"
-echo "   pm2 logs            - Ver logs"
-echo "   pm2 restart all     - Reiniciar"
-echo "   sudo systemctl status nginx - Estado de Nginx"
+echo "   sudo -u apkstore pm2 status    - Ver estado"
+echo "   sudo -u apkstore pm2 logs      - Ver logs"
+echo "   sudo -u apkstore pm2 restart all - Reiniciar"
+echo "   sudo systemctl status nginx    - Estado de Nginx"
 echo ""
