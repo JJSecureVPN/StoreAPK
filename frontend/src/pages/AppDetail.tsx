@@ -295,7 +295,7 @@ const AppDetail = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 opacity-0 animate-fade-in">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <Link
           to="/"
@@ -308,7 +308,7 @@ const AppDetail = () => {
         </Link>
 
         {/* App Header */}
-        <div className="bg-dark-100/50 border border-primary-500/20 rounded-2xl p-6 mb-6 transition-all duration-300">
+        <div className="bg-dark-100/50 border border-primary-500/20 rounded-2xl p-6 mb-6">
           <div className="flex items-start space-x-6">
             <div className="relative flex-shrink-0">
               <img
