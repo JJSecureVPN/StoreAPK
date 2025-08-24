@@ -37,6 +37,11 @@ const AppDetail = () => {
     }
   }, [id]);
 
+  // Scroll to top when component mounts or id changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [id]);
+
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
