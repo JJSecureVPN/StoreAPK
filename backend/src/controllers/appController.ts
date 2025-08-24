@@ -369,16 +369,23 @@ export const downloadApp = async (req: Request, res: Response) => {
     const dbConnected = await isDatabaseConnected();
     
     if (!dbConnected) {
-      // Return mock download for demo
-      const app = mockApps.find(app => app.id === parseInt(id));
+      console.log('Database not connected - handling download for app ID:', id);
+      
+      // Find app in both user uploaded and mock apps
+      const app = findAppById(parseInt(id));
       if (!app) {
+        console.log('App not found for download:', id);
         return res.status(404).json({ error: 'App not found' });
       }
       
+      console.log('Found app for download:', app.name);
+      
       if (!app.apk_url) {
+        console.log('APK URL not available for app:', app.name);
         return res.status(404).json({ error: 'APK file not available' });
       }
       
+      console.log('Providing download URL:', app.apk_url);
       return res.json({ 
         download_url: app.apk_url, 
         filename: `${app.name.replace(/\s+/g, '_')}.apk` 
