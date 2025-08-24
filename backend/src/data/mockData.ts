@@ -98,14 +98,56 @@ export const mockApps = [
   }
 ];
 
+import fs from 'fs';
+import path from 'path';
+
 // In-memory storage for user-uploaded apps when database is not available
 export let userUploadedApps: any[] = [];
+
+// File path for persistent storage
+const USER_APPS_FILE = path.join(__dirname, '../../../uploads/user-apps.json');
+
+// Load user apps from file on startup
+const loadUserAppsFromFile = () => {
+  try {
+    if (fs.existsSync(USER_APPS_FILE)) {
+      const data = fs.readFileSync(USER_APPS_FILE, 'utf8');
+      userUploadedApps = JSON.parse(data);
+      console.log(`Loaded ${userUploadedApps.length} user apps from file`);
+    } else {
+      console.log('No user apps file found, starting with empty array');
+    }
+  } catch (error) {
+    console.error('Error loading user apps from file:', error);
+    userUploadedApps = [];
+  }
+};
+
+// Save user apps to file
+const saveUserAppsToFile = () => {
+  try {
+    // Ensure directory exists
+    const dir = path.dirname(USER_APPS_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    
+    fs.writeFileSync(USER_APPS_FILE, JSON.stringify(userUploadedApps, null, 2));
+    console.log(`Saved ${userUploadedApps.length} user apps to file`);
+  } catch (error) {
+    console.error('Error saving user apps to file:', error);
+  }
+};
+
+// Initialize by loading existing user apps
+loadUserAppsFromFile();
 
 // Function to add a new app to the in-memory storage
 export const addMockApp = (appData: any) => {
   console.log('Adding app to in-memory storage:', appData);
   userUploadedApps.push(appData);
   console.log('Total apps in memory now:', userUploadedApps.length);
+  saveUserAppsToFile(); // Persist to file
 };
 
 // Function to update an existing app in the in-memory storage
@@ -115,6 +157,7 @@ export const updateMockApp = (packageName: string, appData: any) => {
   if (index !== -1) {
     userUploadedApps[index] = { ...userUploadedApps[index], ...appData };
     console.log('App updated successfully');
+    saveUserAppsToFile(); // Persist to file
     return userUploadedApps[index];
   }
   return null;
