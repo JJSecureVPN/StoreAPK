@@ -316,8 +316,8 @@ const AppDetail = () => {
                 }}
               />
               {/* Verified Badge */}
-              <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full p-2 border-2 border-dark-100 shadow-lg shadow-green-500/30 backdrop-blur-sm">
-                <div className="h-3 w-3 bg-white rounded-full shadow-sm"></div>
+              <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full p-2 border-2 border-dark-100">
+                <div className="h-3 w-3 bg-white rounded-full"></div>
               </div>
             </div>
             

@@ -15,11 +15,11 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group focus:outline-none">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary-500 to-accent-500 rounded-xl opacity-30 group-hover:opacity-60 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full opacity-30 group-hover:opacity-60 transition-opacity duration-300 blur-sm"></div>
               <img 
                 src="/logo-jhs.png" 
                 alt="JHS Store" 
-                className="relative h-10 w-10 rounded-xl" 
+                className="relative h-10 w-10 rounded-xl z-10" 
               />
             </div>
             <div className="flex items-center space-x-1">
