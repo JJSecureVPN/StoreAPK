@@ -120,11 +120,17 @@ export const updateMockApp = (packageName: string, appData: any) => {
   return null;
 };
 
-// Function to get all apps (mock + user uploaded)
+// Function to get all apps (prioritize user uploaded, fallback to mock)
 export const getAllMockApps = () => {
-  const allApps = [...mockApps, ...userUploadedApps];
-  console.log('Returning all apps:', allApps.length, 'total');
-  return allApps.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  // If there are user-uploaded apps, return only those
+  if (userUploadedApps.length > 0) {
+    console.log('Returning user-uploaded apps only:', userUploadedApps.length, 'apps');
+    return userUploadedApps.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }
+  
+  // If no user-uploaded apps, return mock apps as examples
+  console.log('No user-uploaded apps found, returning mock apps:', mockApps.length, 'apps');
+  return mockApps.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 };
 
 // Function to find an app by package name in user uploaded apps

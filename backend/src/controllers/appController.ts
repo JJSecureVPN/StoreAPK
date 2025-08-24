@@ -8,7 +8,8 @@ import {
   getAllMockApps, 
   addMockApp, 
   updateMockApp, 
-  findMockAppByPackageName 
+  findMockAppByPackageName,
+  userUploadedApps 
 } from '../data/mockData';
 
 // Check if database is connected
@@ -57,17 +58,25 @@ export const getAppById = async (req: Request, res: Response) => {
     const dbConnected = await isDatabaseConnected();
     
     if (!dbConnected) {
-      // Return from all apps (including user-uploaded ones)
+      // Get app from the current active set (user apps if they exist, otherwise mock apps)
       const allApps = getAllMockApps();
       const app = allApps.find(app => app.id === parseInt(id));
+      
       if (!app) {
         return res.status(404).json({ error: 'App not found' });
       }
       
+      // Check if this is a user-uploaded app (has screenshots array) or mock app
+      const hasUserUploads = userUploadedApps.length > 0;
+      const isUserApp = hasUserUploads && userUploadedApps.some((userApp: any) => userApp.id === app.id);
+      const screenshots = isUserApp ? (app.screenshots || []) : 
+                         hasUserUploads ? [] : 
+                         mockScreenshots.filter(s => s.app_id === parseInt(id));
+      
       const appWithDetails: AppWithDetails = {
         ...app,
-        screenshots: app.screenshots || mockScreenshots.filter(s => s.app_id === parseInt(id)),
-        comments: mockComments.filter(c => c.app_id === parseInt(id))
+        screenshots,
+        comments: hasUserUploads ? [] : mockComments.filter(c => c.app_id === parseInt(id))
       };
       
       return res.json(appWithDetails);
