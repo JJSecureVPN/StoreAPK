@@ -57,15 +57,16 @@ export const getAppById = async (req: Request, res: Response) => {
     const dbConnected = await isDatabaseConnected();
     
     if (!dbConnected) {
-      // Return mock data if database is not available
-      const app = mockApps.find(app => app.id === parseInt(id));
+      // Return from all apps (including user-uploaded ones)
+      const allApps = getAllMockApps();
+      const app = allApps.find(app => app.id === parseInt(id));
       if (!app) {
         return res.status(404).json({ error: 'App not found' });
       }
       
       const appWithDetails: AppWithDetails = {
         ...app,
-        screenshots: mockScreenshots.filter(s => s.app_id === parseInt(id)),
+        screenshots: app.screenshots || mockScreenshots.filter(s => s.app_id === parseInt(id)),
         comments: mockComments.filter(c => c.app_id === parseInt(id))
       };
       

@@ -70,7 +70,9 @@ export const upload = multer({
 export const uploadFiles = async (req: Request, res: Response) => {
   try {
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    // Force HTTPS for production
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
+    const baseUrl = `${protocol}://${req.get('host')}`;
     
     const response: any = {};
     
@@ -109,7 +111,9 @@ export const uploadFiles = async (req: Request, res: Response) => {
 export const uploadApp = async (req: Request, res: Response) => {
   try {
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    // Force HTTPS for production
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
+    const baseUrl = `${protocol}://${req.get('host')}`;
     
     const response: any = {};
     
