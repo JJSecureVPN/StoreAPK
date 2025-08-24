@@ -96,7 +96,7 @@ export const getAppById = async (req: Request, res: Response) => {
 
 export const createApp = async (req: Request, res: Response) => {
   try {
-    console.log('Creating app with data:', req.body);
+    console.log('Creating app with data:', JSON.stringify(req.body, null, 2));
     
     const { 
       name, package_name, short_description, long_description, 
@@ -105,19 +105,23 @@ export const createApp = async (req: Request, res: Response) => {
     
     // Validate required fields
     if (!name || !package_name) {
+      console.log('Validation failed - missing required fields:', { name, package_name });
       return res.status(400).json({ 
-        error: 'Name and package_name are required fields' 
+        error: 'Name and package_name are required fields',
+        received: { name, package_name }
       });
     }
     
     const dbConnected = await isDatabaseConnected();
     
     if (!dbConnected) {
+      console.log('Database not connected');
       return res.status(503).json({ 
         error: 'Database not available. Cannot create apps without database connection.' 
       });
     }
     
+    console.log('Attempting to insert app into database...');
     const result = await query(`
       INSERT INTO apps (
         name, package_name, short_description, long_description,
@@ -126,14 +130,33 @@ export const createApp = async (req: Request, res: Response) => {
       RETURNING *
     `, [name, package_name, short_description, long_description, logo_url, apk_url, version, size_mb]);
     
+    console.log('App created successfully:', result.rows[0]);
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Error creating app:', error);
+    
+    // Handle duplicate package name error
     if ((error as any).code === '23505') {
-      res.status(400).json({ error: 'Package name already exists' });
-    } else {
-      res.status(500).json({ error: 'Failed to create app' });
+      const packageName = req.body.package_name;
+      console.log(`Duplicate package name detected: ${packageName}`);
+      return res.status(400).json({ 
+        error: `Package name '${packageName}' already exists. Please use a different package name.`,
+        code: 'DUPLICATE_PACKAGE_NAME',
+        package_name: packageName
+      });
     }
+    
+    // Handle other database errors
+    if ((error as any).code) {
+      return res.status(400).json({ 
+        error: 'Database error occurred',
+        code: (error as any).code,
+        detail: (error as any).detail || 'Unknown database error'
+      });
+    }
+    
+    // Generic error
+    res.status(500).json({ error: 'Failed to create app' });
   }
 };
 
