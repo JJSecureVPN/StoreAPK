@@ -1,7 +1,15 @@
 import type { Request, Response } from 'express';
 import { query } from '../config/database';
 import type { App, AppWithDetails, Comment, UserLike } from '../models/index';
-import { mockApps, mockComments, mockScreenshots } from '../data/mockData';
+import { 
+  mockApps, 
+  mockComments, 
+  mockScreenshots, 
+  getAllMockApps, 
+  addMockApp, 
+  updateMockApp, 
+  findMockAppByPackageName 
+} from '../data/mockData';
 
 // Check if database is connected
 const isDatabaseConnected = async (): Promise<boolean> => {
@@ -19,8 +27,11 @@ export const getAllApps = async (req: Request, res: Response) => {
     const dbConnected = await isDatabaseConnected();
     
     if (!dbConnected) {
-      // Return mock data if database is not available
-      return res.json(mockApps);
+      // Return all apps including user-uploaded ones
+      console.log('Database not connected - returning all mock apps including user uploads');
+      const allApps = getAllMockApps();
+      console.log(`Returning ${allApps.length} apps total`);
+      return res.json(allApps);
     }
     
     const result = await query(`
@@ -35,7 +46,8 @@ export const getAllApps = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching apps:', error);
     // Fallback to mock data on error
-    res.json(mockApps);
+    const allApps = getAllMockApps();
+    res.json(allApps);
   }
 };
 
@@ -116,25 +128,55 @@ export const createApp = async (req: Request, res: Response) => {
     
     if (!dbConnected) {
       console.log('Database not connected - using mock data fallback');
-      // Create a mock response when database is not available
-      const mockApp = {
-        id: Date.now(),
-        name,
-        package_name,
-        short_description: short_description || '',
-        long_description: long_description || '',
-        logo_url: logo_url || '',
-        apk_url: apk_url || '',
-        version: version || '1.0.0',
-        size_mb: size_mb || 0,
-        category: 'Entretenimiento',
-        downloads: 0,
-        likes: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      console.log('Mock app created:', mockApp);
-      return res.status(201).json(mockApp);
+      // Check if app with this package name already exists in memory
+      const existingApp = findMockAppByPackageName(package_name);
+      
+      if (existingApp) {
+        // Update existing app in memory
+        console.log(`Updating existing app in memory: ${package_name}`);
+        const updatedApp = updateMockApp(package_name, {
+          name,
+          short_description: short_description || '',
+          long_description: long_description || '',
+          logo_url: logo_url || '',
+          apk_url: apk_url || '',
+          version: version || '1.0.0',
+          size_mb: size_mb || 0,
+          updated_at: new Date().toISOString()
+        });
+        
+        console.log('App updated in memory:', updatedApp);
+        return res.status(200).json({
+          ...updatedApp,
+          message: 'App updated successfully (mock mode)'
+        });
+      } else {
+        // Create new app in memory
+        console.log('Creating new app in memory...');
+        const mockApp = {
+          id: Date.now(),
+          name,
+          package_name,
+          short_description: short_description || '',
+          long_description: long_description || '',
+          logo_url: logo_url || '',
+          apk_url: apk_url || '',
+          version: version || '1.0.0',
+          size_mb: size_mb || 0,
+          category: 'Entretenimiento',
+          downloads: 0,
+          likes: 0,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        addMockApp(mockApp);
+        console.log('App created in memory:', mockApp);
+        return res.status(201).json({
+          ...mockApp,
+          message: 'App created successfully (mock mode)'
+        });
+      }
     }
     
     // Check if app with same package_name already exists
@@ -367,17 +409,28 @@ export const addScreenshots = async (req: Request, res: Response) => {
     
     if (!dbConnected) {
       console.log('Database not connected - using mock data for screenshots');
-      // Create mock screenshots when database is not available
-      const mockResults = screenshots.map((screenshot, index) => ({
-        id: Date.now() + index,
-        app_id: parseInt(id),
-        image_url: screenshot.image_url,
-        position: screenshot.position || index,
-        created_at: new Date().toISOString()
-      }));
       
-      console.log('Mock screenshots created:', mockResults);
-      return res.status(201).json(mockResults);
+      // Find app in mock data (either predefined or user uploaded)
+      const apps = getAllMockApps();
+      let app = apps.find(a => a.id.toString() === id);
+      
+      if (!app) {
+        return res.status(404).json({ error: 'App not found' });
+      }
+
+      // Update app with screenshots in memory
+      const updatedApp = updateMockApp(app.package_name, {
+        screenshots: screenshots.map((screenshot, index) => ({
+          id: Date.now() + index,
+          app_id: app.id,
+          image_url: screenshot.image_url,
+          position: screenshot.position || index,
+          created_at: new Date().toISOString()
+        }))
+      });
+
+      console.log('Screenshots added to mock app:', updatedApp);
+      return res.status(201).json(updatedApp.screenshots || []);
     }
     
     console.log('Database connected - inserting screenshots into database');

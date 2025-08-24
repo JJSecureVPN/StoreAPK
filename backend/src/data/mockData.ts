@@ -98,6 +98,40 @@ export const mockApps = [
   }
 ];
 
+// In-memory storage for user-uploaded apps when database is not available
+export let userUploadedApps: any[] = [];
+
+// Function to add a new app to the in-memory storage
+export const addMockApp = (appData: any) => {
+  console.log('Adding app to in-memory storage:', appData);
+  userUploadedApps.push(appData);
+  console.log('Total apps in memory now:', userUploadedApps.length);
+};
+
+// Function to update an existing app in the in-memory storage
+export const updateMockApp = (packageName: string, appData: any) => {
+  console.log('Updating app in in-memory storage:', packageName);
+  const index = userUploadedApps.findIndex(app => app.package_name === packageName);
+  if (index !== -1) {
+    userUploadedApps[index] = { ...userUploadedApps[index], ...appData };
+    console.log('App updated successfully');
+    return userUploadedApps[index];
+  }
+  return null;
+};
+
+// Function to get all apps (mock + user uploaded)
+export const getAllMockApps = () => {
+  const allApps = [...mockApps, ...userUploadedApps];
+  console.log('Returning all apps:', allApps.length, 'total');
+  return allApps.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+};
+
+// Function to find an app by package name in user uploaded apps
+export const findMockAppByPackageName = (packageName: string) => {
+  return userUploadedApps.find(app => app.package_name === packageName);
+};
+
 export const mockComments = [
   {
     id: 1,
