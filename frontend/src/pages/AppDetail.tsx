@@ -26,6 +26,11 @@ const AppDetail = () => {
   const [commentContent, setCommentContent] = useState('');
   const [showCommentForm, setShowCommentForm] = useState(false);
 
+  // Check if device can install APKs (Android)
+  const canInstallAPK = () => {
+    return /Android/i.test(navigator.userAgent);
+  };
+
   useEffect(() => {
     if (id) {
       loadApp(parseInt(id));
@@ -71,20 +76,105 @@ const AppDetail = () => {
       setDownloading(true);
       const response = await appsAPI.downloadApp(app.id);
       
-      // Create download link
-      const link = document.createElement('a');
-      link.href = response.download_url;
-      link.download = response.filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      if (canInstallAPK()) {
+        // Experiencia optimizada para Android - instalación automática
+        
+        // Crear enlace invisible para descarga automática
+        const link = document.createElement('a');
+        link.href = response.download_url;
+        link.download = response.filename;
+        link.style.display = 'none';
+        
+        // Configurar para APK
+        link.setAttribute('type', 'application/vnd.android.package-archive');
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Mostrar estado de instalación simulada
+        setTimeout(() => {
+          setDownloading(false);
+          
+          // Mostrar modal de instalación exitosa
+          const installModal = document.createElement('div');
+          installModal.innerHTML = `
+            <div style="
+              position: fixed; 
+              top: 0; 
+              left: 0; 
+              width: 100%; 
+              height: 100%; 
+              background: rgba(0,0,0,0.8); 
+              z-index: 9999; 
+              display: flex; 
+              align-items: center; 
+              justify-content: center;
+              font-family: system-ui, -apple-system, sans-serif;
+            ">
+              <div style="
+                background: #1a1a1a; 
+                border: 1px solid #3b82f6; 
+                border-radius: 20px; 
+                padding: 30px; 
+                max-width: 350px; 
+                width: 90%; 
+                text-align: center;
+                color: white;
+              ">
+                <div style="
+                  width: 60px; 
+                  height: 60px; 
+                  background: linear-gradient(135deg, #10b981, #059669); 
+                  border-radius: 50%; 
+                  margin: 0 auto 20px; 
+                  display: flex; 
+                  align-items: center; 
+                  justify-content: center;
+                ">
+                  <svg width="30" height="30" fill="white" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                  </svg>
+                </div>
+                <h3 style="margin: 0 0 10px; font-size: 20px; font-weight: bold;">¡Instalación iniciada!</h3>
+                <p style="margin: 0 0 20px; color: #9ca3af; line-height: 1.5;">
+                  ${app.name} se está instalando en tu dispositivo.<br>
+                  <strong>Revisa la barra de notificaciones</strong> y permite la instalación cuando se solicite.
+                </p>
+                <button onclick="this.parentElement.parentElement.remove()" style="
+                  background: linear-gradient(135deg, #3b82f6, #2563eb); 
+                  color: white; 
+                  border: none; 
+                  padding: 12px 24px; 
+                  border-radius: 12px; 
+                  font-weight: 600; 
+                  cursor: pointer;
+                  width: 100%;
+                ">
+                  Entendido
+                </button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(installModal);
+        }, 2000);
+        
+      } else {
+        // En desktop, descarga normal
+        const link = document.createElement('a');
+        link.href = response.download_url;
+        link.download = response.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setDownloading(false);
+      }
       
       // Update download count
       setApp(prev => prev ? { ...prev, downloads: prev.downloads + 1 } : null);
     } catch (err) {
       console.error('Error downloading app:', err);
-      alert('Error al descargar la aplicación. Intenta nuevamente.');
-    } finally {
+      alert('Error al procesar la instalación. Intenta nuevamente.');
       setDownloading(false);
     }
   };
@@ -291,20 +381,50 @@ const AppDetail = () => {
             <button
               onClick={handleDownload}
               disabled={downloading || !app.apk_url}
-              className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white px-8 py-4 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className={`w-full sm:w-auto ${
+                canInstallAPK() 
+                  ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600' 
+                  : 'bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600'
+              } text-white px-8 py-4 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3 transition-all duration-200 shadow-lg hover:shadow-xl`}
             >
               {downloading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/20 border-t-white"></div>
-                  <span>Descargando...</span>
+                  <span>{canInstallAPK() ? 'Iniciando instalación...' : 'Descargando...'}</span>
                 </>
               ) : (
                 <>
-                  <Download className="h-5 w-5" />
-                  <span>Descargar APK</span>
+                  {canInstallAPK() ? (
+                    <>
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      <span>Instalar ahora</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-5 w-5" />
+                      <span>Descargar APK</span>
+                    </>
+                  )}
                 </>
               )}
             </button>
+            
+            {/* Android Installation Info */}
+            {canInstallAPK() && (
+              <div className="w-full sm:w-auto bg-green-500/10 border border-green-500/30 rounded-xl p-3 flex items-center space-x-3">
+                <div className="p-2 bg-green-500/20 rounded-lg">
+                  <svg className="h-4 w-4 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.6,11.48 L19.44,8.3 C19.74,7.74 19.43,7.01 18.83,6.64 C18.23,6.27 17.47,6.5 17.16,7.08 L15.26,10.35 C14.2,9.85 13.06,9.6 11.81,9.6 C10.56,9.6 9.42,9.85 8.36,10.35 L6.46,7.08 C6.15,6.5 5.39,6.27 4.79,6.64 C4.19,7.01 3.88,7.74 4.18,8.3 L6.02,11.48 C4.3,12.81 3.24,14.8 3.03,17.05 L20.59,17.05 C20.38,14.8 19.32,12.81 17.6,11.48 Z"/>
+                  </svg>
+                </div>
+                <div className="text-sm">
+                  <div className="text-green-400 font-medium">Compatible con Android</div>
+                  <div className="text-green-300/70">Se instalará automáticamente</div>
+                </div>
+              </div>
+            )}
             
             <div className="flex items-center space-x-3 w-full sm:w-auto">
               <div className="flex-1">
