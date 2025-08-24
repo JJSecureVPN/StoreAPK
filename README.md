@@ -47,8 +47,8 @@ chmod +x install-vps.sh
 
 1. **Clonar repositorio:**
 ```bash
-git clone <tu-repositorio-url>
-cd StoreAPK-main
+git clone https://github.com/JJSecureVPN/StoreAPK.git
+cd StoreAPK
 ```
 
 2. **Configurar variables de entorno:**
@@ -249,7 +249,7 @@ server {
 
     # Backend API
     location /api/ {
-        proxy_pass http://localhost:3001;
+        proxy_pass http://localhost:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -278,7 +278,7 @@ DB_HOST=localhost
 DB_NAME=apk_store
 DB_PASSWORD=secure_password
 DB_PORT=5432
-PORT=3001
+PORT=3002
 NODE_ENV=production
 FRONTEND_URL=https://store.jhservices.com.ar
 ```
