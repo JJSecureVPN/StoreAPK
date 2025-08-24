@@ -270,7 +270,7 @@ const AppDetail = () => {
   if (error || !app) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center bg-dark-100/50 backdrop-blur-sm border border-red-500/20 rounded-2xl p-8 max-w-md mx-4">
+        <div className="text-center bg-dark-100/50 border border-red-500/20 rounded-2xl p-8 max-w-md mx-4">
           <div className="h-16 w-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="h-8 w-8 text-red-400" />
           </div>

@@ -192,8 +192,8 @@ const Categories = () => {
                 to={`/app/${app.id}`}
                 className={`group block ${
                   viewMode === 'grid'
-                    ? 'bg-dark-200/40 backdrop-blur-sm border border-primary-500/20 rounded-2xl p-6 hover:border-primary-500/40 hover:bg-dark-200/60 transition-all duration-300'
-                    : 'bg-dark-200/40 backdrop-blur-sm border border-primary-500/20 rounded-xl p-4 hover:border-primary-500/40 hover:bg-dark-200/60 transition-all duration-300 flex items-center space-x-4'
+                    ? 'bg-dark-200/40 border border-primary-500/20 rounded-2xl p-6 hover:border-primary-500/40 hover:bg-dark-200/60 transition-all duration-300'
+                    : 'bg-dark-200/40 border border-primary-500/20 rounded-xl p-4 hover:border-primary-500/40 hover:bg-dark-200/60 transition-all duration-300 flex items-center space-x-4'
                 }`}
               >
                 <div className={`${viewMode === 'list' ? 'flex-shrink-0' : ''}`}>
@@ -253,7 +253,7 @@ const Categories = () => {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className="group relative bg-dark-200/40 backdrop-blur-sm border border-primary-500/20 rounded-2xl p-6 hover:border-primary-500/40 hover:bg-dark-200/60 transition-all duration-300 text-left"
+                  className="group relative bg-dark-200/40 border border-primary-500/20 rounded-2xl p-6 hover:border-primary-500/40 hover:bg-dark-200/60 transition-all duration-300 text-left"
                 >
                   {/* Gradient overlay */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-300`}></div>

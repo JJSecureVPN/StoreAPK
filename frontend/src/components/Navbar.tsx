@@ -8,14 +8,14 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50">
       {/* Simplified backdrop */}
-      <div className="absolute inset-0 bg-dark-50/90 border-b border-primary-500/20 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-dark-50/90 border-b border-primary-500/20"></div>
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group focus:outline-none">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary-500 to-accent-500 rounded-xl blur-md opacity-30 group-hover:opacity-60 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-500 to-accent-500 rounded-xl opacity-30 group-hover:opacity-60 transition-opacity duration-300"></div>
               <img 
                 src="/logo-jhs.png" 
                 alt="JHS Store" 
@@ -74,7 +74,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-white hover:text-primary-300 p-2 rounded-xl bg-dark-100/30 backdrop-blur-sm border border-primary-500/30 hover:border-primary-500/50 transition-all duration-300"
+              className="text-white hover:text-primary-300 p-2 rounded-xl bg-dark-100/30 border border-primary-500/30 hover:border-primary-500/50 transition-all duration-300"
             >
               {isMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -88,7 +88,7 @@ const Navbar = () => {
         {/* Mobile Search Bar */}
         <div className="md:hidden pb-4">
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-accent-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-accent-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative flex items-center">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-primary-400" />
@@ -96,7 +96,7 @@ const Navbar = () => {
               <input
                 type="text"
                 placeholder="Buscar apps..."
-                className="w-full pl-12 pr-4 py-3 bg-dark-100/30 backdrop-blur-sm border border-primary-500/30 rounded-2xl text-white placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/60 transition-all duration-300"
+                className="w-full pl-12 pr-4 py-3 bg-dark-100/30 border border-primary-500/30 rounded-2xl text-white placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/60 transition-all duration-300"
               />
             </div>
           </div>
@@ -105,7 +105,7 @@ const Navbar = () => {
       
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-dark-50/95 backdrop-blur-md border-b border-primary-500/20 animate-slide-up">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-dark-50/95 border-b border-primary-500/20 animate-slide-up">
           <div className="px-4 py-6 space-y-4">
             <Link
               to="/"

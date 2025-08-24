@@ -49,7 +49,7 @@ const Home = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center bg-dark-100/50 backdrop-blur-sm border border-red-500/20 rounded-2xl p-8 shadow-glow">
+        <div className="text-center bg-dark-100/50 border border-red-500/20 rounded-2xl p-8 shadow-glow">
           <AlertCircle className="h-12 w-12 mx-auto text-red-500 mb-4" />
           <p className="text-dark-600 mb-6 text-lg">{error}</p>
           <button
@@ -82,17 +82,17 @@ const Home = () => {
         
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-2xl mx-auto">
-          <div className="bg-dark-100/30 backdrop-blur-sm border border-primary-500/20 rounded-xl p-6 text-center hover:border-primary-500/40 transition-all duration-300 group">
+          <div className="bg-dark-100/30 border border-primary-500/20 rounded-xl p-6 text-center hover:border-primary-500/40 transition-all duration-300 group">
             <Download className="h-8 w-8 mx-auto text-primary-500 mb-2 group-hover:animate-bounce" />
             <div className="text-2xl font-bold text-white">1000+</div>
             <div className="text-dark-500 text-sm">Descargas</div>
           </div>
-          <div className="bg-dark-100/30 backdrop-blur-sm border border-accent-500/20 rounded-xl p-6 text-center hover:border-accent-500/40 transition-all duration-300 group">
+          <div className="bg-dark-100/30 border border-accent-500/20 rounded-xl p-6 text-center hover:border-accent-500/40 transition-all duration-300 group">
             <Shield className="h-8 w-8 mx-auto text-accent-500 mb-2 group-hover:animate-bounce" />
             <div className="text-2xl font-bold text-white">100%</div>
             <div className="text-dark-500 text-sm">Seguras</div>
           </div>
-          <div className="bg-dark-100/30 backdrop-blur-sm border border-primary-400/20 rounded-xl p-6 text-center hover:border-primary-400/40 transition-all duration-300 group">
+          <div className="bg-dark-100/30 border border-primary-400/20 rounded-xl p-6 text-center hover:border-primary-400/40 transition-all duration-300 group">
             <Star className="h-8 w-8 mx-auto text-yellow-500 mb-2 group-hover:animate-bounce" />
             <div className="text-2xl font-bold text-white">4.8</div>
             <div className="text-dark-500 text-sm">Rating</div>
@@ -111,7 +111,7 @@ const Home = () => {
           </div>
           <div className="flex items-center space-x-2">
             <Zap className="h-5 w-5 text-accent-500" />
-            <span className="text-dark-500 bg-dark-100/30 backdrop-blur-sm border border-primary-500/20 rounded-full px-4 py-2 text-sm font-medium">
+            <span className="text-dark-500 bg-dark-100/30 border border-primary-500/20 rounded-full px-4 py-2 text-sm font-medium">
               {apps.length} disponibles
             </span>
           </div>
@@ -119,7 +119,7 @@ const Home = () => {
 
         {apps.length === 0 ? (
           <div className="text-center py-20">
-            <div className="bg-dark-100/30 backdrop-blur-sm border border-primary-500/20 rounded-2xl p-12 max-w-md mx-auto">
+            <div className="bg-dark-100/30 border border-primary-500/20 rounded-2xl p-12 max-w-md mx-auto">
               <div className="h-16 w-16 bg-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Download className="h-8 w-8 text-primary-500" />
               </div>
@@ -143,7 +143,7 @@ const Home = () => {
       </div>
 
       {/* Categories Section */}
-      <div className="bg-dark-100/20 backdrop-blur-sm border border-primary-500/10 rounded-2xl p-8 mt-16 animate-fade-in">
+      <div className="bg-dark-100/20 border border-primary-500/10 rounded-2xl p-8 mt-16 animate-fade-in">
         <div className="text-center mb-8">
           <h3 className="text-2xl font-bold text-white mb-2">Explora por Categorías</h3>
           <p className="text-dark-500">Encuentra exactamente lo que necesitas</p>
@@ -157,7 +157,7 @@ const Home = () => {
           ].map((category, index) => (
             <div
               key={category.name}
-              className="group relative p-6 bg-dark-100/30 backdrop-blur-sm border border-primary-500/20 rounded-xl hover:border-primary-500/50 transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-glow"
+              className="group relative p-6 bg-dark-100/30 border border-primary-500/20 rounded-xl hover:border-primary-500/50 transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-glow"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-10 rounded-xl transition-opacity duration-300`}></div>
